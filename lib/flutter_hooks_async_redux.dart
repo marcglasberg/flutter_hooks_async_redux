@@ -20,7 +20,7 @@ import 'package:flutter_hooks/flutter_hooks.dart' hide Store;
 ///
 /// ```dart
 /// T useAppState<T>(T Function(AppState state) converter, {bool distinct = true})
-///    => useSelector<T, AppState>(converter, distinct: distinct);
+///    => useSelector<AppState, T>(converter, distinct: distinct);
 /// ```
 ///
 /// This will simplify the use of the hook, like this:
