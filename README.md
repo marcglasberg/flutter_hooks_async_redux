@@ -10,12 +10,13 @@ You have to add the following dependencies to your `pubspec.yaml`:
 ```yaml
 dependencies:
   flutter_hooks: ^0.20.5 # or newer
-  async_redux: ^22.4.0 # or newer
-  flutter_hooks_async_redux: ^1.0.0 # or newer 
+  async_redux: ^22.4.2 # or newer
+  flutter_hooks_async_redux: ^1.0.3 # or newer 
 ```
 
-And then, all features of Flutter Hooks and Async Redux are available for you,
-including the ones provided by this package, as described below.
+And then, all features of Flutter Hooks and Async Redux are available for you.
+
+The hooks provided by this package are described below.
 
 ## useSelector
 
@@ -39,7 +40,7 @@ T useAppState<T>(T Function(AppState state) converter, {bool distinct = true}) =
     useSelector<AppState, T>(converter, distinct: distinct);
 ```
 
-This will simplify the use of the hook, like this:
+By doing so, you simplify accessing state values. For example:
 
 ```
 String username = useAppState((state) => state.username);
@@ -91,7 +92,7 @@ useDispatchSync(MyAction());
 
 ## useIsWaiting
 
-You can use `isWaiting` and pass it `actionOrActionTypeOrList` to check if:
+With `useIsWaiting` you can check if:
 
 * A specific async ACTION is currently being processed.
 * An async action of a specific TYPE is currently being processed.
@@ -115,51 +116,41 @@ Examples:
 
 ```
 var dispatch = useDispatch();
-var isWaiting = useIsWaiting();
 
 // Waiting for an action TYPE:
 dispatch(MyAction());
-if (isWaiting(MyAction)) { // Show a spinner }
+var isWaiting = useIsWaiting(MyAction);
+if (isWaiting) { // Show a spinner }
 
 // Waiting for an ACTION:
 var action = MyAction();
 dispatch(action);
-if (isWaiting(action)) { // Show a spinner }
+var isWaiting = useIsWaiting(action);
+if (isWaiting) { // Show a spinner }
 
 // Waiting for any of the given action TYPES:
 dispatch(BuyAction());
-if (isWaiting([BuyAction, SellAction])) { // Show a spinner }
+var isWaiting = useIsWaiting([BuyAction, SellAction]);
+if (isWaiting) { // Show a spinner }
 ```
 
-## useFailed
+## useIsFailed, useExceptionFor, useClearExceptionFor
 
 Usage:
 
 ```
-var (isFailed, exceptionFor, clearExceptionFor) = useFailed();
-```
-
-You use it like this:
-
-```
 // Returns true if the action failed with an UserException:
-if (isFailed(MyAction)) { // Show an error message. }
+var isFailed = useIsFailed(MyAction);
+if (isFailed) { // Show an error message. }
 
 // Returns the `UserException` of the action that failed.
-if (isFailed(MyAction)) Text(exceptionFor(MyAction)!.reason ?? '');
+var exception = useExceptionFor(MyAction);
+Text(exception!.reason ?? '');
 
 // Removes the given action from the list of action types that failed.
+var clearExceptionFor = useClearExceptionFor(); 
 clearExceptionFor(MyAction);
 ```
 
 Note these functions accept a `ReduxAction`, an action `Type`, or
 an `Iterable` of action types. Any other type of object won't work.
-
-You can also use `useIsFailed`, `useExceptionFor` and `useClearExceptionFor`
-separately, if you prefer:
-
-```
-var isFailed = useIsFailed();
-var exceptionFor = useExceptionFor();
-var clearExceptionFor = useClearExceptionFor();
-```

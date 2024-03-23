@@ -33,16 +33,26 @@ T useSelector<St, T>(
   T Function(St state) converter, {
   bool distinct = true,
 }) {
-  final store = StoreProvider.storeBackdoor<St>(
-    useContext(),
-    debug: 'useSelector hook',
+  final store = StoreProvider.backdoorStaticGlobal<St>();
+  return use(
+    _AppStateHook(
+      store: store,
+      converter: converter,
+      distinct: distinct,
+    ),
   );
+}
 
-  return use(_AppStateHook(
-    store: store,
-    converter: converter,
-    distinct: distinct,
-  ));
+T _useStore<T>(
+  T Function(Store store) converter,
+) {
+  final store = StoreProvider.backdoorStaticGlobal();
+  return use(
+    _AppStoreHook(
+      store: store,
+      storeConverter: converter,
+    ),
+  );
 }
 
 /// Dispatches the action, applying its reducer, and possibly changing the store state.
@@ -56,7 +66,7 @@ T useSelector<St, T>(
 /// See also:
 /// - [useDispatchSync] which dispatches sync actions, and throws if the action is async.
 /// - [useDispatchAndWait] which dispatches both sync and async actions, and returns a Future.
-Dispatch useDispatch() => useContext().dispatch;
+Dispatch useDispatch() => StoreProvider.backdoorStaticGlobal().dispatch;
 
 /// Dispatches the action, applying its reducer, and possibly changing the store state.
 /// However, if the action is ASYNC, it will throw a [StoreException].
@@ -64,7 +74,7 @@ Dispatch useDispatch() => useContext().dispatch;
 /// See also:
 /// - [useDispatch] which dispatches both sync and async actions.
 /// - [useDispatchAndWait] which dispatches both sync and async actions, and returns a Future.
-DispatchSync useDispatchSync() => useContext().dispatchSync;
+DispatchSync useDispatchSync() => StoreProvider.backdoorStaticGlobal().dispatchSync;
 
 /// Dispatches the action, applying its reducer, and possibly changing the store state.
 /// The action may be sync or async. In both cases, it returns a [Future] that resolves when
@@ -91,7 +101,7 @@ DispatchSync useDispatchSync() => useContext().dispatchSync;
 /// See also:
 /// - [useDispatch] which dispatches both sync and async actions.
 /// - [useDispatchSync] which dispatches sync actions, and throws if the action is async.
-DispatchAndWait useDispatchAndWait() => useContext().dispatchAndWait;
+DispatchAndWait useDispatchAndWait() => StoreProvider.backdoorStaticGlobal().dispatchAndWait;
 
 /// You can use [isWaiting] and pass it [actionOrActionTypeOrList] to check if:
 /// * A specific async ACTION is currently being processed.
@@ -114,60 +124,36 @@ DispatchAndWait useDispatchAndWait() => useContext().dispatchAndWait;
 ///
 /// ```dart
 /// var dispatch = useDispatch();
-/// var isWaiting = useIsWaiting();
 ///
 /// // Waiting for an action TYPE:
 /// dispatch(MyAction());
-/// if (isWaiting(MyAction)) { // Show a spinner }
+/// var isWaiting = useIsWaiting(MyAction);
+/// if (isWaiting) { // Show a spinner }
 ///
 /// // Waiting for an ACTION:
 /// var action = MyAction();
 /// dispatch(action);
-/// if (isWaiting(action)) { // Show a spinner }
+/// var isWaiting = useIsWaiting(action);
+/// if (isWaiting) { // Show a spinner }
 ///
 /// // Waiting for any of the given action TYPES:
 /// dispatch(BuyAction());
-/// if (isWaiting([BuyAction, SellAction])) { // Show a spinner }
+/// var isWaiting = useIsWaiting([BuyAction, SellAction]);
+/// if (isWaiting) { // Show a spinner }
 /// ```
-bool Function(Object) useIsWaiting(Object actionOrTypeOrList) => useContext().isWaiting;
-
-/// Usage:
-///
-/// ```dart
-/// var (isFailed, exceptionFor, clearExceptionFor) = useFailed();
-///
-/// // Returns true if the action failed with an UserException:
-/// if (isFailed(MyAction)) { // Show an error message. }
-///
-/// // Returns the `UserException` of the action that failed.
-/// if (isFailed(MyAction)) Text(exceptionFor(MyAction)!.reason ?? '');
-///
-/// // Removes the given action from the list of action types that failed.
-/// clearExceptionFor(MyAction);
-/// ```
-/// Note: These functions accept a [ReduxAction], an action [Type], or
-/// an [Iterable] of action types. Any other type of object won't work.
-(
-  bool Function(Object actionOrTypeOrList) isFailed,
-  UserException? Function(Object actionOrTypeOrList) exceptionFor,
-  void Function(Object actionOrTypeOrList) clearExceptionFor,
-) useFailed() {
-  var context = useContext();
-  return (context.isFailed, context.exceptionFor, context.clearExceptionFor);
-}
+bool useIsWaiting(Object actionOrTypeOrList) =>
+    _useStore<bool>((store) => store.isWaiting(actionOrTypeOrList));
 
 /// Returns true if an [actionOrTypeOrList] failed with an [UserException].
 ///
 /// Example:
 ///
 /// ```dart
-/// /// var isFailed = useIsFailed();
-/// if (isFailed(MyAction)) { // Show an error message. }
+/// var isFailed = useIsFailed(MyAction);
+/// if (isFailed) { // Show an error message. }
 /// ```
-///
-/// See also:
-/// - [useFailed] which returns a tuple with all three fail functions.
-bool Function(Object actionOrTypeOrList) useIsFailed() => useContext().isFailed;
+bool useIsFailed(Object actionOrTypeOrList) =>
+    _useStore<bool>((store) => store.isFailed(actionOrTypeOrList));
 
 /// Returns the [UserException] of the [actionTypeOrList] that failed.
 ///
@@ -178,16 +164,12 @@ bool Function(Object actionOrTypeOrList) useIsFailed() => useContext().isFailed;
 /// Example:
 ///
 /// ```dart
-/// /// var isFailed = useIsFailed();
-/// /// var exceptionFor = useExceptionFor();
-/// if (isFailed(SaveUserAction)) Text(exceptionFor(SaveUserAction)!.reason ?? '');
+/// var isFailed = useIsFailed(SaveUserAction);
+/// var exception = useExceptionFor(SaveUserAction);
+/// if (isFailed) Text(exception)!.reason ?? '');
 /// ```
-///
-/// See also:
-/// - [useFailed] which returns a tuple with all three fail functions.
-UserException? Function(Object actionOrTypeOrList) useExceptionFor() //
-    =>
-    useContext().exceptionFor;
+UserException? useExceptionFor(Object actionOrTypeOrList) =>
+    _useStore<UserException?>((store) => store.exceptionFor(actionOrTypeOrList));
 
 /// Removes the given [actionTypeOrList] from the list of action types that
 /// failed.
@@ -200,11 +182,14 @@ UserException? Function(Object actionOrTypeOrList) useExceptionFor() //
 /// type of object will return null and throw a [StoreException] after the
 /// async gap.
 ///
-/// See also:
-/// - [useFailed] which returns a tuple with all three fail functions.
-void Function(Object actionOrTypeOrList) useClearExceptionFor() //
-    =>
-    useContext().clearExceptionFor;
+/// Example:
+///
+/// ```dart
+/// var isFailed = useIsFailed(SaveUserAction);
+/// var clearExceptionFor = useClearExceptionFor();
+/// if (isFailed) clearExceptionFor(SaveUserAction);
+void Function(Object actionOrTypeOrList) useClearExceptionFor() =>
+    StoreProvider.backdoorStaticGlobal().clearExceptionFor;
 
 /// `St` is the type of the state of the store.
 /// `T` is the type of the state the widget needs (the part of the state that is "selected").
@@ -252,5 +237,50 @@ class _AppStateStateHook<T, St> extends HookState<T, _AppStateHook<T, St>> {
     final state = hook.converter(appState);
     if (isInitialised && hook.distinct && state == _state) return;
     setState(() => _state = state);
+  }
+}
+
+/// `T` is the type of the value from the store the widget needs.
+class _AppStoreHook<T> extends Hook<T> {
+  const _AppStoreHook({
+    required this.store,
+    required this.storeConverter,
+  });
+
+  final T Function(Store) storeConverter;
+  final Store store;
+
+  @override
+  HookState<T, Hook<T>> createState() => _AppStoreStateHook<T>();
+}
+
+/// `T` is the type of the state the widget needs (the part of the state that is "selected").
+class _AppStoreStateHook<T> extends HookState<T, _AppStoreHook<T>> {
+  StreamSubscription? _storeSubscription;
+  late T _value;
+
+  bool get isInitialised => _storeSubscription != null;
+
+  @override
+  void initHook() {
+    super.initHook();
+    _updateValue(hook.store.state);
+    final onStoreChanged = hook.store.onChange;
+    _storeSubscription = onStoreChanged.listen(_updateValue);
+  }
+
+  @override
+  T build(BuildContext context) => _value;
+
+  @override
+  void dispose() {
+    _storeSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _updateValue(dynamic _) {
+    final value = hook.storeConverter(hook.store);
+    if (isInitialised && value == _value) return;
+    setState(() => _value = value);
   }
 }

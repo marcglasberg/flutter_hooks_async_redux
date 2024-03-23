@@ -1,4 +1,4 @@
-## 1.0.2
+## 1.0.3
 
 * Initial commit:
     - useSelector
@@ -6,7 +6,6 @@
     - useDispatchSync
     - useDispatchAndWait
     - useIsWaiting
-    - isFailed (combines useIsFailed / useExceptionFor / useClearExceptionFor)
     - useIsFailed
     - useExceptionFor
     - useClearExceptionFor 
