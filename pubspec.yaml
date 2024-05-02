@@ -1,6 +1,6 @@
 name: flutter_hooks_async_redux
 description: "Combines flutter_hooks and async_redux packages to add Redux to flutter_hooks"
-version: 1.0.3
+version: 2.0.0
 # author: Marcelo Glasberg <marcglasberg@gmail.com>
 homepage: https://github.com/marcglasberg/flutter_hooks_async_redux
 topics:
@@ -16,7 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_hooks: ^0.20.5
-  async_redux: ^22.4.2
+  async_redux: ^23.0.0
 
 dev_dependencies:
   flutter_test:

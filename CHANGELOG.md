@@ -1,3 +1,7 @@
+## 2.0.0 
+
+* Using async_redux: ^23.0.0
+
 ## 1.0.3
 
 * Initial commit:
