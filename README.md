@@ -1,3 +1,5 @@
+[![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
+
 # Adds Redux to Flutter Hooks
 
 This package uses
@@ -10,7 +12,7 @@ You have to add the following dependencies to your `pubspec.yaml`:
 ```yaml
 dependencies:
   flutter_hooks: ^0.20.5 # or newer
-  async_redux: ^23.0.0 # or newer
+  async_redux: ^24.0.0 # or newer
   flutter_hooks_async_redux: ^1.0.3 # or newer 
 ```
 
