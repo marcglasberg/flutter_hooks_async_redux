@@ -1,4 +1,4 @@
-## 3.0.0
+## 3.0.1
 
 * Sponsored by [MyText.ai](https://mytext.ai)
 
