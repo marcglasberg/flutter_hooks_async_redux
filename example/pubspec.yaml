@@ -8,8 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_hooks: ^0.20.5 # or newer
-  async_redux: ^24.0.0 # or newer
+  flutter_hooks: ^0.21.2 # or newer
+  async_redux: ^24.2.2 # or newer
   flutter_hooks_async_redux:
     path: ../
 
