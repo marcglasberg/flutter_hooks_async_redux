@@ -1,3 +1,7 @@
+## 3.1.0
+
+* Bump dependencies
+
 ## 3.0.1
 
 * Sponsored by [MyText.ai](https://mytext.ai)

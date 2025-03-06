@@ -11,9 +11,9 @@ You have to add the following dependencies to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_hooks: ^0.20.5 # or newer
-  async_redux: ^24.0.0 # or newer
-  flutter_hooks_async_redux: ^1.0.3 # or newer 
+  flutter_hooks: ^0.21.2 # or newer
+  async_redux: ^24.2.2 # or newer
+  flutter_hooks_async_redux: ^3.1.0 # or newer 
 ```
 
 And then, all features of Flutter Hooks and Async Redux are available for you.

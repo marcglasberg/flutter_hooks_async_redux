@@ -1,4 +1,4 @@
-library flutter_hooks_async_redux;
+library;
 
 import 'dart:async';
 

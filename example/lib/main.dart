@@ -34,6 +34,8 @@ class Application extends HookWidget {
 
     useEffect(() {
       dispatch(SetCounter(42));
+
+      return;
     }, []);
 
     return Scaffold(
