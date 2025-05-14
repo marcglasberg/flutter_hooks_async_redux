@@ -1,3 +1,7 @@
+## 3.2.0
+
+* Bump dependencies (async_redux to 25.3.0)
+
 ## 3.1.0
 
 * Bump dependencies

@@ -1,5 +1,6 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart' hide Action;
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart' hide Store;
 import 'package:flutter_hooks_async_redux/flutter_hooks_async_redux.dart';
 
@@ -9,7 +10,10 @@ class AppState {
   const AppState({this.counter = 0});
 }
 
-T useAppState<T>(T Function(AppState state) converter, {bool distinct = true}) =>
+T useAppState<T>(
+  T Function(AppState state) converter, {
+  bool distinct = true,
+}) =>
     useSelector<AppState, T>(converter, distinct: distinct);
 
 void main() {
@@ -38,26 +42,35 @@ class Application extends HookWidget {
       return;
     }, []);
 
-    return Scaffold(
-      body: Center(
-        child: Text('Counter is $counter'),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark.copyWith(
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            disabledElevation: 0,
-            onPressed: isWaitingIncrement ? null : () => dispatch(IncrementAction()),
-            child: isWaitingIncrement ? const CircularProgressIndicator() : const Icon(Icons.add),
-          ),
-          const SizedBox(height: 12),
-          FloatingActionButton(
-            child: const Icon(Icons.clear),
-            onPressed: () {
-              dispatch(ResetCounter());
-            },
-          ),
-        ],
+      child: Scaffold(
+        body: Center(
+          child: Text('Counter is $counter'),
+        ),
+        floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FloatingActionButton(
+              disabledElevation: 0,
+              onPressed:
+                  isWaitingIncrement ? null : () => dispatch(IncrementAction()),
+              child: isWaitingIncrement
+                  ? const CircularProgressIndicator()
+                  : const Icon(Icons.add),
+            ),
+            const SizedBox(height: 12),
+            FloatingActionButton(
+              child: const Icon(Icons.clear),
+              onPressed: () {
+                dispatch(ResetCounter());
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
